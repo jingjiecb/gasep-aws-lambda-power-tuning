@@ -2,6 +2,7 @@
 
 const AWS = require('aws-sdk');
 const url = require('url');
+const crypto = require('crypto');
 
 
 // local reference to this module
@@ -420,8 +421,10 @@ module.exports.generatePayloads = (num, payloadInput) => {
         return payloads;
     } else {
         // if not an array, always use the same payload (still generate a list)
-        const payloads = utils.range(num);
-        payloads.fill(utils.convertPayload(payloadInput), 0, num);
+        const payloads = [];
+        for (let i = 0; i < num; i++) {
+            payloads.push(utils.convertPayload(payloadInput));
+        }
         return payloads;
     }
 };
@@ -451,6 +454,8 @@ module.exports.convertPayload = (payload) => {
         // note: 'just a string' becomes '"just a string"'
         console.log('Converting payload to JSON string from ', typeof payload);
         payload = JSON.stringify(payload);
+        const eventId = 'PERFORMANCE-TEST-' + crypto.randomUUID();
+        payload.replace('{eventId}', eventId);
     }
     return payload;
 };
